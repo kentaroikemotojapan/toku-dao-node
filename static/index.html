@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antigravity Virtue IDE - TokuToken Hub</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/style.css">
+    <!-- Monaco Editor Setup -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.39.0/min/vs/loader.min.js"></script>
+</head>
+<body>
+    <div class="glow-bg"></div>
+    
+    <div class="app-container">
+        <!-- HEADER -->
+        <header class="app-header">
+            <div class="brand">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-cube fa-spin" style="--fa-animation-duration: 15s;"></i>
+                </div>
+                <div class="brand-text">
+                    <h1>Antigravity Virtue IDE</h1>
+                    <p>TokuToken Integrated Development Environment</p>
+                </div>
+            </div>
+            <div class="system-status">
+                <span class="status-item">
+                    <span class="status-dot green"></span>
+                    EVM Network: <strong id="evm-network-status">Anvil Connected</strong>
+                </span>
+                <span class="status-item">
+                    <span class="status-dot purple"></span>
+                    AI Judge: <strong id="ai-status">Ollama Ready</strong>
+                </span>
+            </div>
+        </header>
+
+        <!-- USERS OVERVIEW CARDS -->
+        <section class="users-section">
+            <div class="section-title-bar">
+                <h2><i class="fa-solid fa-users"></i> On-Chain Ledger Status</h2>
+                <span class="sync-indicator" id="sync-status">Synced <i class="fa-solid fa-arrows-rotate fa-spin"></i></span>
+            </div>
+            <div class="cards-grid" id="accounts-container">
+                <!-- Cards will be dynamically rendered here -->
+                <div class="loading-placeholder">
+                    <i class="fa-solid fa-spinner fa-spin"></i> Loading blockchain ledger state...
+                </div>
+            </div>
+        </section>
+
+        <!-- MAIN WORKSPACE -->
+        <main class="workspace-grid">
+            
+            <!-- LEFT COLUMN: CONTRACT EDITOR -->
+            <div class="panel editor-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <i class="fa-solid fa-file-code"></i>
+                        <span>TokuToken.sol</span>
+                        <span class="badge">Solidity 0.8.20</span>
+                    </div>
+                    <div class="panel-actions">
+                        <button id="btn-save" class="btn btn-primary">
+                            <i class="fa-solid fa-floppy-disk"></i> 保存 & デプロイ
+                        </button>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div id="monaco-editor-container"></div>
+                </div>
+            </div>
+
+            <!-- MIDDLE COLUMN: SANDBOX & TRIGGER -->
+            <div class="panel sandbox-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <i class="fa-solid fa-vial"></i>
+                        <span>Virtue Sandbox</span>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <!-- Simulation Trigger -->
+                    <div class="sandbox-group card-gradient">
+                        <h3><i class="fa-solid fa-play"></i> 統合テストシナリオ</h3>
+                        <p class="desc">Alice（誠実）、Bob（鍼灸）、Charlie（不正申請）による、AI審査からオンチェーン処理までの一連のシミュレーションを一括実行します。</p>
+                        <button id="btn-simulate" class="btn btn-accent btn-block">
+                            <i class="fa-solid fa-bolt"></i> シミュレーション実行
+                        </button>
+                    </div>
+
+                    <!-- Manual Claim Form -->
+                    <div class="sandbox-group form-group">
+                        <h3><i class="fa-solid fa-paper-plane"></i> 手動徳申請 (Claim Sandbox)</h3>
+                        <form id="claim-form">
+                            <div class="input-field">
+                                <label for="claim-user">ユーザー名</label>
+                                <input type="text" id="claim-user" placeholder="例: User_Alice (誠実)" required value="User_Alice (誠実)">
+                            </div>
+                            <div class="input-field">
+                                <label for="claim-wallet">ウォレットアドレス</label>
+                                <select id="claim-wallet">
+                                    <option value="" disabled selected>アドレスを選択</option>
+                                    <!-- Dynamic Options from Status -->
+                                </select>
+                            </div>
+                            <div class="input-field">
+                                <label for="claim-text">申請行動の内容</label>
+                                <textarea id="claim-text" rows="3" placeholder="健康や地産地消、地域貢献に関する申請内容を入力してください..." required>地元の農家で獲れた有機野菜と和食（鯖の塩焼き）の昼食をとった。</textarea>
+                            </div>
+                            <button type="submit" id="btn-submit-claim" class="btn btn-success btn-block">
+                                <i class="fa-solid fa-paper-plane"></i> 申請を送信してAI判定
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: LIVE LOGS -->
+            <div class="panel logs-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <i class="fa-solid fa-terminal"></i>
+                        <span>Live Output Log</span>
+                    </div>
+                    <div class="panel-actions">
+                        <button id="btn-clear-logs" class="btn btn-icon" title="クリア">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="panel-body terminal-body">
+                    <div class="terminal-content" id="log-console">
+                        <div class="log-line system-line">[SYSTEM] Antigravity IDE initialized. Ready to execute claims.</div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Modal/Notification Banner for Results -->
+    <div id="toast" class="toast-banner hidden">
+        <div class="toast-icon"><i class="fa-solid fa-circle-info"></i></div>
+        <div class="toast-text">
+            <h4 id="toast-title">通知</h4>
+            <p id="toast-desc">メッセージ</p>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
