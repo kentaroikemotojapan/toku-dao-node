@@ -30,27 +30,24 @@ if ! pgrep -x "ipfs" > /dev/null; then
 fi
 
 # 2. Locate project root & launch Docker Compose Stack
-if [ -f "./docker-compose.yml" ]; then
-    PROJECT_DIR="."
+COMPOSE_FILE=$(find . -name "docker-compose.yml" 2>/dev/null | head -n 1)
+
+if [ -n "$COMPOSE_FILE" ]; then
+    PROJECT_DIR=$(dirname "$COMPOSE_FILE")
 else
-    COMPOSE_FILE=$(find . -maxdepth 2 -name "docker-compose.yml" 2>/dev/null | head -n 1)
-    if [ -n "$COMPOSE_FILE" ]; then
-        PROJECT_DIR=$(dirname "$COMPOSE_FILE")
+    INSTALL_DIR="$HOME/.toku-dao-node"
+    if [ -d "$INSTALL_DIR" ]; then
+        echo "🔄 Updating Toku Node repository in $INSTALL_DIR..."
+        (cd "$INSTALL_DIR" && git pull origin main || true)
     else
-        INSTALL_DIR="$HOME/.toku-dao-node"
-        if [ -d "$INSTALL_DIR" ]; then
-            echo "🔄 Updating Toku Node repository..."
-            (cd "$INSTALL_DIR" && git pull origin main || true)
-        else
-            echo "📦 Cloning Toku Node repository..."
-            git clone --depth 1 https://github.com/kentaroikemotojapan/toku-dao-node.git "$INSTALL_DIR"
-        fi
-        PROJECT_DIR="$INSTALL_DIR"
+        echo "📦 Cloning Toku Node repository to $INSTALL_DIR..."
+        git clone --depth 1 https://github.com/kentaroikemotojapan/toku-dao-node.git "$INSTALL_DIR"
     fi
+    PROJECT_DIR="$INSTALL_DIR"
 fi
 
 cd "$PROJECT_DIR"
-echo "🚀 Launching EVM Node & FastAPI Server via Docker Compose..."
+echo "🚀 Launching EVM Node & FastAPI Server via Docker Compose in $(pwd)..."
 if command -v docker-compose &> /dev/null; then
     docker-compose up -d --build
 else
