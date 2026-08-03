@@ -55,6 +55,47 @@
             </div>
         </section>
 
+        <section class="p2p-pipeline-section">
+            <div class="p2p-grid">
+                <div class="agent-card" id="agent-card-1">
+                    <div class="agent-badge">AGENT 1 (EDGE INFERENCE)</div>
+                    <div class="agent-title">Autonomous Local Engine</div>
+                    <div class="agent-metric">Latency: <strong id="agent1-latency-val">18.2 ms</strong></div>
+                    <div class="agent-status-tag success" id="agent1-status-tag">ACTIVE</div>
+                </div>
+
+                <div class="agent-card" id="agent-card-2">
+                    <div class="agent-badge purple">AGENT 2 (VIRTUE EVALUATOR)</div>
+                    <div class="agent-title">IPFS Proof & Virtue Score</div>
+                    <div class="agent-metric">Score: <strong id="agent2-score-val">95/100</strong></div>
+                    <div class="agent-status-tag purple" id="agent2-proof-tag">Proof Verified</div>
+                </div>
+
+                <div class="agent-card" id="agent-card-3">
+                    <div class="agent-badge green">AGENT 3 (DISTRIBUTED SYNC)</div>
+                    <div class="agent-title">libp2p PubSub & EVM Sync</div>
+                    <div class="agent-metric">P2P Peers: <strong id="agent3-peers-val">3 Connected</strong></div>
+                    <div class="agent-status-tag green" id="agent3-sync-tag">Mesh Synced</div>
+                </div>
+            </div>
+
+            <div class="rag-injector-box">
+                <div class="rag-header">
+                    <h3><i class="fa-solid fa-brain"></i> RAG Dynamic Knowledge Injector (IPFS ✕ libp2p)</h3>
+                    <span class="rag-sub-text">Updates context CID over P2P PubSub mesh without central cloud dependencies.</span>
+                </div>
+                <div class="rag-input-group">
+                    <input type="text" id="rag-context-input" placeholder="e.g. Add local organic farming policy v3.2 & Eastern medicine criteria..." value="地元の無農薬農家による和食・食材の提供をVirtueスコア加算の対象として追加設定">
+                    <button id="btn-inject-rag" class="btn btn-accent">
+                        <i class="fa-solid fa-network-wired"></i> RAG更新 & P2P同期
+                    </button>
+                </div>
+                <div class="ipfs-cid-display">
+                    <span>IPFS CID:</span> <code id="active-ipfs-cid">QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco</code>
+                </div>
+            </div>
+        </section>
+
         <!-- MAIN WORKSPACE -->
         <main class="workspace-grid">
             

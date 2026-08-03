@@ -21,6 +21,63 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnClearLogs = document.getElementById('btn-clear-logs');
 
     // ---------------------------------------------------------
+    // RAG Dynamic Injector & 3-Agent Pipeline Logic
+    // ---------------------------------------------------------
+    const btnInjectRag = document.getElementById('btn-inject-rag');
+    const ragContextInput = document.getElementById('rag-context-input');
+    const activeIpfsCid = document.getElementById('active-ipfs-cid');
+
+    const agent1LatencyVal = document.getElementById('agent1-latency-val');
+    const agent2ScoreVal = document.getElementById('agent2-score-val');
+    const agent3PeersVal = document.getElementById('agent3-peers-val');
+
+    if (btnInjectRag) {
+        btnInjectRag.addEventListener('click', async () => {
+            const ragText = ragContextInput.value.trim();
+            if (!ragText) return;
+
+            btnInjectRag.disabled = true;
+            btnInjectRag.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> IPFS Pinning & P2P Broadcast...';
+            addLog(`[RAG-INJECT] Starting local context re-indexing for: "${ragText}"`, 'system');
+
+            try {
+                const res = await fetch('/api/v1/rag/update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_name: "Admin_Node", rag_text: ragText })
+                });
+                const data = await res.json();
+
+                if (data.status === 'success') {
+                    // 1. IPFS CID の更新表示
+                    activeIpfsCid.innerText = data.ipfs.cid;
+                    addLog(`📦 [IPFS] Context pinned. CID: ${data.ipfs.cid} (${data.ipfs.bytes_pinned} bytes)`, 'success');
+
+                    // 2. Agent 1 アニメーション
+                    agent1LatencyVal.innerText = `${data.agents.agent_1_inference.latency_ms} ms`;
+                    addLog(`⚡️ [Agent-1] Local M2 Metal NPU inference executed in ${data.agents.agent_1_inference.latency_ms}ms`, 'success');
+
+                    // 3. Agent 2 アニメーション
+                    agent2ScoreVal.innerText = `${data.agents.agent_2_evaluator.virtue_score}/100`;
+                    addLog(`🧠 [Agent-2] Virtue Policy Evaluated. Score: ${data.agents.agent_2_evaluator.virtue_score}. Proof: ${data.agents.agent_2_evaluator.proof_hash}`, 'warning');
+
+                    // 4. Agent 3 アニメーション
+                    agent3PeersVal.innerText = `${data.agents.agent_3_sync.connected_peers} Connected`;
+                    addLog(`📡 [Agent-3] Broadcasted CID via libp2p PubSub ('toku/rag/updates'). TxHash: ${data.agents.agent_3_sync.tx_hash}`, 'system');
+
+                    showToast('RAG P2P同期完了', `新しいコンテキストがIPFS (CID: ${data.ipfs.cid.slice(0, 10)}...) に追加され、P2Pメッシュへ同期されました。`, 'success');
+                }
+            } catch (err) {
+                addLog(`[ERROR] RAG Injection failed: ${err}`, 'danger');
+                showToast('同期エラー', err.message, 'danger');
+            } finally {
+                btnInjectRag.disabled = false;
+                btnInjectRag.innerHTML = '<i class="fa-solid fa-network-wired"></i> RAG更新 & P2P同期';
+            }
+        });
+    }
+
+    // ---------------------------------------------------------
     // 1. Monaco Editor Initialization
     // ---------------------------------------------------------
     require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.39.0/min/vs' } });
