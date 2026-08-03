@@ -16,9 +16,10 @@ if ! command -v ipfs &> /dev/null; then
     fi
 fi
 
-if [ ! -d "$HOME/.ipfs" ]; then
-    ipfs init
-    ipfs config --json Pubsub.Enabled true
+if [ ! -f "$HOME/.ipfs/config" ]; then
+    rm -rf "$HOME/.ipfs"
+    ipfs init || true
+    ipfs config --json Pubsub.Enabled true || true
 fi
 
 # Launch IPFS Daemon in background if not running
