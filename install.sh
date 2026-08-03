@@ -32,20 +32,21 @@ fi
 # 2. Locate project root & launch Docker Compose Stack
 if [ -f "./docker-compose.yml" ]; then
     PROJECT_DIR="."
-elif [ -f "./ALPHA環境/docker-compose.yml" ]; then
-    PROJECT_DIR="./ALPHA環境"
-elif [ -f "$(dirname "$0")/docker-compose.yml" ]; then
-    PROJECT_DIR="$(dirname "$0")"
 else
-    INSTALL_DIR="$HOME/.toku-dao-node"
-    if [ -d "$INSTALL_DIR" ]; then
-        echo "🔄 Updating Toku Node repository..."
-        (cd "$INSTALL_DIR" && git pull origin main --quiet || true)
+    COMPOSE_FILE=$(find . -maxdepth 2 -name "docker-compose.yml" 2>/dev/null | head -n 1)
+    if [ -n "$COMPOSE_FILE" ]; then
+        PROJECT_DIR=$(dirname "$COMPOSE_FILE")
     else
-        echo "📦 Cloning Toku Node repository..."
-        git clone --depth 1 https://github.com/kentaroikemotojapan/toku-dao-node.git "$INSTALL_DIR" --quiet
+        INSTALL_DIR="$HOME/.toku-dao-node"
+        if [ -d "$INSTALL_DIR" ]; then
+            echo "🔄 Updating Toku Node repository..."
+            (cd "$INSTALL_DIR" && git pull origin main || true)
+        else
+            echo "📦 Cloning Toku Node repository..."
+            git clone --depth 1 https://github.com/kentaroikemotojapan/toku-dao-node.git "$INSTALL_DIR"
+        fi
+        PROJECT_DIR="$INSTALL_DIR"
     fi
-    PROJECT_DIR="$INSTALL_DIR"
 fi
 
 cd "$PROJECT_DIR"
