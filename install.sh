@@ -17,7 +17,7 @@ if ! command -v ipfs &> /dev/null; then
 fi
 
 if [ ! -d "$HOME/.ipfs" ]; then
-    ipfs init --profile low-power
+    ipfs init
     ipfs config --json Pubsub.Enabled true
 fi
 
