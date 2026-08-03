@@ -29,7 +29,26 @@ if ! pgrep -x "ipfs" > /dev/null; then
     sleep 3
 fi
 
-# 2. Launch Docker Compose Stack
+# 2. Locate project root & launch Docker Compose Stack
+if [ -f "./docker-compose.yml" ]; then
+    PROJECT_DIR="."
+elif [ -f "./ALPHA環境/docker-compose.yml" ]; then
+    PROJECT_DIR="./ALPHA環境"
+elif [ -f "$(dirname "$0")/docker-compose.yml" ]; then
+    PROJECT_DIR="$(dirname "$0")"
+else
+    INSTALL_DIR="$HOME/.toku-dao-node"
+    if [ -d "$INSTALL_DIR" ]; then
+        echo "🔄 Updating Toku Node repository..."
+        (cd "$INSTALL_DIR" && git pull origin main --quiet || true)
+    else
+        echo "📦 Cloning Toku Node repository..."
+        git clone --depth 1 https://github.com/kentaroikemotojapan/toku-dao-node.git "$INSTALL_DIR" --quiet
+    fi
+    PROJECT_DIR="$INSTALL_DIR"
+fi
+
+cd "$PROJECT_DIR"
 echo "🚀 Launching EVM Node & FastAPI Server via Docker Compose..."
 if command -v docker-compose &> /dev/null; then
     docker-compose up -d --build
