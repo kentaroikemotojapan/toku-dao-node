@@ -31,7 +31,11 @@ fi
 
 # 2. Launch Docker Compose Stack
 echo "🚀 Launching EVM Node & FastAPI Server via Docker Compose..."
-docker-compose up -d --build
+if command -v docker-compose &> /dev/null; then
+    docker-compose up -d --build
+else
+    docker compose up -d --build
+fi
 
 echo "=================================================================="
 echo "🎉 Node Online! Open Antigravity Virtue IDE at: http://localhost:5001"
