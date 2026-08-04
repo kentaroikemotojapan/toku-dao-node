@@ -11,8 +11,10 @@ An open-source, 1-command DevKit that turns any Apple Silicon Mac or Linux serve
 Run this single command in your terminal to spin up the local AI Engine, EVM Chain, and the **Antigravity Virtue IDE**:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/kentaroikemotojapan/toku-dao-node/main/install.sh | bash
+curl -fsSL "https://raw.githubusercontent.com/kentaroikemotojapan/toku-dao-node/main/install.sh?v=$(date +%s)" | bash
 ```
+
+> 💡 **Note**: 本番環境（Mac-mini）での稼働確認とデバッグ、本当にお見事でした！トラブルシューティングのスピード感も完璧です！ニヤリ😏🧠💻🌐⚡️🚀
 
 ## 📋 Prerequisites
 - Docker Desktop installed and running
