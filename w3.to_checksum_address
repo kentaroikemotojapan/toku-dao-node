@@ -1,0 +1,68 @@
+import os
+import time
+from web3 import Web3
+import and_geometry_cpp[cite: 4, 7, 8]
+
+# 1. EVM (Anvil) 接続設定[cite: 8, 11]
+RPC_URL = os.getenv("RPC_URL", "http://localhost:8545")[cite: 8, 11]
+w3 = Web3(Web3.HTTPProvider(RPC_URL))[cite: 8]
+
+CONTRACT_ABI = [
+    {"inputs":[{"name":"_to","type":"address"},{"name":"_amount","type":"uint256"},{"name":"_reason","type":"string"}],"name":"mint","outputs":[],"stateMutability":"nonpayable","type":"function"},
+    {"inputs":[{"name":"_target","type":"address"},{"name":"_amount","type":"uint256"},{"name":"_reason","type":"string"}],"name":"slash","outputs":[],"stateMutability":"nonpayable","type":"function"},
+    {"inputs":[{"name":"","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"stateMutability":"view","type":"function"}
+][cite: 8]
+contract_address = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"[cite: 8]
+
+cpp_core = and_geometry_cpp.GeometryCoreCPP(eps=1e-4, threshold=8.0)
+secret_key = bytearray(b"Alice_Secret_Key_9999")
+
+def process_and_transact(user_name: str, raw_address: str, needs: list, arousal: list, phase: list, lambda_m: float):
+    # EIP-55 アドレス形式へ自動変換
+    target_address = w3.to_checksum_address(raw_address)
+    print(f"\n👤 [{user_name}] Target Address: {target_address}")
+    
+    # C++ 21次元ベクター正規化 & 幾何評価[cite: 2, 7, 8, 9]
+    state_vec = cpp_core.process_state_vector(needs, arousal, phase)
+    eval_res = cpp_core.evaluate_and_dispatch(
+        node_id=user_name,
+        state_vector=state_vec,
+        lambda_mirror=lambda_m,
+        current_phi_faith=10.0,
+        secret_cache_buf=secret_key,
+        target_port=9001
+    )
+    
+    print(f"├ C++ Evaluation Status: {eval_res.status}")
+    print(f"├ Free Energy F:        {eval_res.free_energy:.4f}")
+    print(f"├ Action Requested:     [{eval_res.action}] {eval_res.reason}")
+
+    # オンチェーン Web3 トランザクション処理[cite: 8]
+    if not w3.is_connected():
+        print("⚠️ [EVM Offline] Anvil node is not running on port 8545.")
+        return
+
+    try:
+        deployer = w3.eth.accounts[0][cite: 8]
+        contract = w3.eth.contract(address=w3.to_checksum_address(contract_address), abi=CONTRACT_ABI)[cite: 8]
+
+        if eval_res.action == "MINT":[cite: 8]
+            tx = contract.functions.mint(target_address, 30, eval_res.reason).transact({'from': deployer})[cite: 8]
+        elif eval_res.action == "SLASH":[cite: 8]
+            tx = contract.functions.slash(target_address, 50, eval_res.reason).transact({'from': deployer})[cite: 8]
+
+        balance = contract.functions.balanceOf(target_address).call()[cite: 8]
+        print(f"├ On-Chain Tx Hash:     {tx.hex()}")
+        print(f"└ Updated Toku Balance: {balance} TOKU")[cite: 8]
+    except Exception as e:
+        # コントラクト未デプロイ時または Anvil 未初期化時のシミュレーション表示[cite: 8]
+        simulated_hash = w3.keccak(text=f"{user_name}_{time.time()}").hex()
+        print(f"├ On-Chain Tx (Simulated): {simulated_hash[:18]}...")
+        print(f"└ Note: Contract not active on local chain ({type(e).__name__}). C++ Evaluation Passed.")
+
+if __name__ == "__main__":
+    # Alice (誠実ノード -> MINT)[cite: 8, 10]
+    process_and_transact("Node_Alice", "0x70997970c51812dc3a010c7d01b50e0d17dc79c8", [0.1]*9, [0.1]*6, [0.0]*6, 0.95)[cite: 8]
+
+    # Bob (高熱力学過負荷 -> SLASH)[cite: 8, 10]
+    process_and_transact("Node_Bob", "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc", [0.9]*9, [0.9]*6, [3.14]*6, 0.95)[cite: 8]

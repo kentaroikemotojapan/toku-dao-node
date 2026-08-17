@@ -1,28 +1,72 @@
 services:
-  # 1. ローカルEVMノード (Ubuntu上のAnvil)
   toku-evm:
-    build: .
+    image: ghcr.io/foundry-rs/foundry:latest
     container_name: toku-evm
-    command: anvil --host 0.0.0.0 --port 8545 --block-time 1
+    entrypoint: ["anvil", "--host", "0.0.0.0", "--port", "8545"]
     ports:
       - "8545:8545"
+    networks:
+      - p2p-mesh
 
-  # 2. 拡散シミュレーター & AI連携ノード (Ubuntu)
-  toku-app:
+  node-alice:
     build: .
-    container_name: toku-app
-    command: uvicorn server:app --host 0.0.0.0 --port 5000
+    container_name: node-alice
+    environment:
+      - PYTHONUNBUFFERED=1
+      - NODE_ID=Node_Alice
+      - P2P_PORT=9001
+      - PEERS=node-bob:9002,node-charlie:9003
+      - RPC_URL=http://toku-evm:8545
     ports:
-      - "5001:5000"  # API用ポートを追加
+      - "9001:9001/udp"
     depends_on:
       - toku-evm
+    networks:
+      - p2p-mesh
+
+  node-bob:
+    build: .
+    container_name: node-bob
     environment:
+      - PYTHONUNBUFFERED=1
+      - NODE_ID=Node_Bob
+      - P2P_PORT=9002
+      - PEERS=node-alice:9001,node-charlie:9003
       - RPC_URL=http://toku-evm:8545
-      # Macホスト側で動作するOllama (Metal GPU) へ接続
-      - OLLAMA_HOST=http://host.docker.internal:11434
+    ports:
+      - "9002:9002/udp"
+    depends_on:
+      - toku-evm
+    networks:
+      - p2p-mesh
+
+  node-charlie:
+    build: .
+    container_name: node-charlie
+    environment:
+      - PYTHONUNBUFFERED=1
+      - NODE_ID=Node_Charlie
+      - P2P_PORT=9003
+      - PEERS=node-alice:9001,node-bob:9002
+      - IS_ATTACKER=1
+      - RPC_URL=http://toku-evm:8545
+    ports:
+      - "9003:9003/udp"
+    depends_on:
+      - toku-evm
+    networks:
+      - p2p-mesh
+  dashboard-node:
+    build: .
+    container_name: dashboard-node
+    command: ["python", "dashboard_server.py"]
     volumes:
       - .:/app
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    tty: true
-    stdin_open: true
+    ports:
+      - "5050:5050"
+    networks:
+      - p2p-mesh
+
+networks:
+  p2p-mesh:
+    driver: bridge
