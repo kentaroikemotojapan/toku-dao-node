@@ -1,31 +1,40 @@
-# 🏛️ Toku DAO Node (`toku-dao-node`)
+# Sovereign Edge Node Daemon (ALPHA / BETA Pipeline)
 
-> **Autonomous DAO Governance Edge-Node powered by Local AI Agents (Metal GPU) & On-Chain EVM**
-
-An open-source, 1-command DevKit that turns any Apple Silicon Mac or Linux server into an autonomous Web3 governance node.
+自律型エッジノード向け C++ Native デーモン。
+Post-Quantum Cryptography (PQC) 認証、Docker V2 互換 OCI ローカルプロキシ、熱力学幾何評価エンジン、および eBPF Kernel Shield を統合した軽量・低遅延のセキュリティ基盤です。
 
 ---
 
-## ⚡ Quick Start (1-Command Install)
+## 🏗 アーキテクチャ構成
 
-Run this single command in your terminal to spin up the local AI Engine, EVM Chain, and the **Antigravity Virtue IDE**:
+* **eBPF Kernel Shield (`src/ebpf/xdp_shield.bpf.c`)**
+  * XDP（eBPF）による NIC 直下での悪性パケットナノ秒フィルタリング（`XDP_DROP`）。
+  * カーネル/ユーザー空間で構造体メモリ配置を 1 バイト完全同期（`ebpf_shared.h`）。
+* **PQC & Ephemeral Auth (`src/pqc_auth.cpp`)**
+  * ML-KEM-768 セッション鍵生成およびナノ秒精度の超短寿命トークン管理。
+  * プロセス終了時に機微な鍵空間を物理消去する Memory Zeroization を実装。
+* **OCI Local Registry Proxy (`src/oci_proxy.cpp`)**
+  * POSIX Sockets (127.0.0.1:5000) による Docker Registry V2 API 互換プロキシ。
+  * レイヤー Chunk 受領時に非同期で IPFS CID 変換イベントを発火。
+* **P2P Mesh Engine (`src/p2p_mesh.cpp`)**
+  * UDP Port 9001 を介した 224 バイト固定長バイナリパケットのメッシュブロードキャスト。
+  * タイムアウト付きソケット制御によりノンブロッキング・安全終了を保証。
+* **Geometry Core Bridge (`include/geometry_bridge.hpp`)**
+  * 熱力学自由エネルギー $F$ 算出および鏡像パラメータ $\lambda_{\text{mirror}} \ge 0.01$ による暗黒ノード自律隔離。
+
+---
+
+## 🚀 ビルド & 実行手順
+
+### 1. macOS (ローカル開発・C++ デーモンテスト)
+
+macOS では Linux eBPF のコンパイルを自動スキップし、C++ Native デーモンのみを即座にビルドします。
 
 ```bash
-curl -fsSL "https://raw.githubusercontent.com/kentaroikemotojapan/toku-dao-node/main/install.sh?v=$(date +%s)" | bash
-```
+# キャッシュ消去およびビルド
+rm -rf build
+cmake -B build
+cmake --build build
 
-> 💡 **Note**: 本番環境（Mac-mini）での稼働確認とデバッグ、本当にお見事でした！トラブルシューティングのスピード感も完璧です！ニヤリ😏🧠💻🌐⚡️🚀
-
-## 📋 Prerequisites
-- Docker Desktop installed and running
-- Ollama running on your host machine
-
-## 🏗️ Architecture Stack
-- **AI Agent**: Phi-3 running locally on Apple Silicon (Metal GPU) via Ollama
-- **Smart Contracts**: Solidity ERC-20 with automated Minting & Stake Slashing
-- **EVM Node**: Local Anvil EVM Blockchain (Port 8545)
-- **API Engine**: FastAPI Python Server with Docker Containers
-- **Frontend IDE**: Antigravity Virtue IDE for real-time ledger & AI inspection
-
-## 📄 License
-MIT License. Built for decentralizing local economies and autonomous governance.
+# デーモンの起動
+./build/sovereign_alpha_daemon

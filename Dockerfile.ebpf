@@ -1,0 +1,27 @@
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    clang \
+    llvm \
+    libbpf-dev \
+    linux-headers-generic \
+    cmake \
+    git \
+    curl \
+    iproute2 \
+    net-tools \
+    && rm -rf /var/lib/apt/lists/*
+
+# BPF コンパイル時の asm/types.h 補完用シンボリックリンク
+RUN ARCH=$(uname -m) && \
+    if [ -d "/usr/include/${ARCH}-linux-gnu/asm" ]; then \
+        ln -s /usr/include/${ARCH}-linux-gnu/asm /usr/include/asm; \
+    fi
+
+WORKDIR /app
+COPY . /app
+
+CMD ["bash", "-c", "rm -rf build && cmake -B build && cmake --build build && ls -la src/ebpf/xdp_shield.bpf.o && llvm-objdump -d src/ebpf/xdp_shield.bpf.o | head -n 30 && ./build/sovereign_alpha_daemon"]
