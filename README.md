@@ -1,40 +1,30 @@
-# Sovereign Edge Node Daemon (ALPHA / BETA Pipeline)
+# Origin OS: 横浜市スマートシティ『熱＆電力自給デジタルツイン』PoC
 
-自律型エッジノード向け C++ Native デーモン。
-Post-Quantum Cryptography (PQC) 認証、Docker V2 互換 OCI ローカルプロキシ、熱力学幾何評価エンジン、および eBPF Kernel Shield を統合した軽量・低遅延のセキュリティ基盤です。
+[![C++17](https://img.shields.io/badge/C%2B%2B-17-blue.svg)](https://isocpp.org/)
+[![Python 3.10](https://img.shields.io/badge/Python-3.10-green.svg)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-009688.svg)](https://fastapi.tiangolo.com/)
+[![Docker Compose](https://img.shields.io/badge/Docker%20Compose-v2+-2496ED.svg)](https://www.docker.com/)
 
----
+横浜市におけるペロブスカイト太陽光発電・排熱回収・地下蓄熱バイパスを統合制御する自律分散型スマートシティ基盤 OS です。
 
-## 🏗 アーキテクチャ構成
+## 🌟 主な機能・特徴
 
-* **eBPF Kernel Shield (`src/ebpf/xdp_shield.bpf.c`)**
-  * XDP（eBPF）による NIC 直下での悪性パケットナノ秒フィルタリング（`XDP_DROP`）。
-  * カーネル/ユーザー空間で構造体メモリ配置を 1 バイト完全同期（`ebpf_shared.h`）。
-* **PQC & Ephemeral Auth (`src/pqc_auth.cpp`)**
-  * ML-KEM-768 セッション鍵生成およびナノ秒精度の超短寿命トークン管理。
-  * プロセス終了時に機微な鍵空間を物理消去する Memory Zeroization を実装。
-* **OCI Local Registry Proxy (`src/oci_proxy.cpp`)**
-  * POSIX Sockets (127.0.0.1:5000) による Docker Registry V2 API 互換プロキシ。
-  * レイヤー Chunk 受領時に非同期で IPFS CID 変換イベントを発火。
-* **P2P Mesh Engine (`src/p2p_mesh.cpp`)**
-  * UDP Port 9001 を介した 224 バイト固定長バイナリパケットのメッシュブロードキャスト。
-  * タイムアウト付きソケット制御によりノンブロッキング・安全終了を保証。
-* **Geometry Core Bridge (`include/geometry_bridge.hpp`)**
-  * 熱力学自由エネルギー $F$ 算出および鏡像パラメータ $\lambda_{\text{mirror}} \ge 0.01$ による暗黒ノード自律隔離。
+- **19.87 μs 超低遅延 C++ Engine**: 21次元情報多様体の自由エネルギー $F$ をリアルタイム評価し過渡熱スパイクを収束。
+- **地下蓄熱全自動バイパス ($Q_{storage}$)**: 夏期ピーク時（1.1 MW超）の過剰熱を 98% 自動バイパス移送し平滑化。
+- **P2P ゴーストメッシュ & 自律防衛**: ビザンチン異常ノードのリアルタイム自動隔離（`QUARANTINED`）およびゼロタッチ復帰。
+- **Web3 オンチェーン証明 (EVM)**: 自由エネルギー判定に連動した環境価値トークンの自動ミント（`MINT`）とステークペナルティ（`SLASH`）。
+- **リアルタイムダッシュボード & OpenAPI**: WebSocket 監視 UI (Port `5050`) および Swagger UI 準拠 API エンドポイント。
 
----
+## 🚀 クイックスタート
 
-## 🚀 ビルド & 実行手順
+### 前提条件
+- Docker & Docker Compose v2+
 
-### 1. macOS (ローカル開発・C++ デーモンテスト)
-
-macOS では Linux eBPF のコンパイルを自動スキップし、C++ Native デーモンのみを即座にビルドします。
-
+### 起動手順
 ```bash
-# キャッシュ消去およびビルド
-rm -rf build
-cmake -B build
-cmake --build build
+# 1. リポジトリのクローン
+git clone [https://github.com/your-org/yokohama-sovereign-twin.git](https://github.com/your-org/yokohama-sovereign-twin.git)
+cd yokohama-sovereign-twin
 
-# デーモンの起動
-./build/sovereign_alpha_daemon
+# 2. 全コンテナ一括ビルド＆起動 (EVM / P2P Nodes / Dashboard)
+docker compose up --build

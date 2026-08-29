@@ -24,4 +24,12 @@ RUN ARCH=$(uname -m) && \
 WORKDIR /app
 COPY . /app
 
+# コンテナ環境用 and_geometry_cpp モジュールの自動ビルド[cite: 25]
+RUN g++ -O3 -shared -std=c++17 -fPIC \
+    $(python3 -m pybind11 --includes) \
+    and_geometry_core.cpp \
+    -o and_geometry_cpp$(python3-config --extension-suffix)[cite: 25]
+#RUN pip install pybind11
+#RUN g++ -O3 -shared -std=c++17 -fPIC $(python3 -m pybind11 --includes) and_geometry_core.cpp -o and_geometry_cpp$(python3-config --extension-suffix)
+#RUN PYTHONPATH=. python3 yokohama_sovereign_twin_demo.py
 CMD ["bash", "-c", "rm -rf build && cmake -B build && cmake --build build && ls -la src/ebpf/xdp_shield.bpf.o && llvm-objdump -d src/ebpf/xdp_shield.bpf.o | head -n 30 && ./build/sovereign_alpha_daemon"]

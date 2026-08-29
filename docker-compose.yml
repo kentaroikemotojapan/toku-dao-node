@@ -48,7 +48,7 @@ services:
       - NODE_ID=Node_Charlie
       - P2P_PORT=9003
       - PEERS=node-alice:9001,node-bob:9002
-      - IS_ATTACKER=1
+      - IS_ATTACKER=0  # ← 1 から 0 へ変更して正常状態に戻す
       - RPC_URL=http://toku-evm:8545
     ports:
       - "9003:9003/udp"
@@ -59,7 +59,7 @@ services:
   dashboard-node:
     build: .
     container_name: dashboard-node
-    command: ["python", "dashboard_server.py"]
+    command: ["python3", "dashboard_server.py"]
     volumes:
       - .:/app
     ports:
