@@ -9,16 +9,17 @@ git commit -m "$COMMIT_MSG" || true
 git push origin main || echo "⚠️ GitHub push failed, continuing via IPFS P2P..."
 
 echo "📦 [2/3] Pinning codebase archive to IPFS Network..."
-# カレントディレクトリをアーカイブして IPFS へ追加し CID を取得
 TAR_PATH="/tmp/toku-node-latest.tar.gz"
 tar --exclude='.git' -czf "$TAR_PATH" .
 NEW_CID=$(ipfs add -q "$TAR_PATH" | tail -n 1)
 
 echo "🌐 [3/3] Broadcasting signed release CID ($NEW_CID) via IPFS PubSub..."
 PAYLOAD="{\"version_cid\": \"$NEW_CID\", \"timestamp\": $(date +%s)}"
-ipfs pubsub pub toku/mesh/releases "$PAYLOAD"
+
+# 修正箇所: echo 経由で標準入力から PubSub へ渡す
+echo "$PAYLOAD" | ipfs pubsub pub toku/mesh/alpha/releases
 
 echo "=================================================="
-echo "🎉 Release published to P2P Mesh!"
+echo "🎉 Release published to Alpha P2P Mesh!"
 echo "CID: $NEW_CID"
 echo "=================================================="
