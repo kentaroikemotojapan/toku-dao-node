@@ -73,9 +73,6 @@ async def get_dashboard():
 # 2. REST API エンドポイント群
 @app.get("/api/v1/twin/telemetry", tags=["Thermodynamic Twin"])
 async def get_telemetry() -> Dict[str, Any]:
-    # テスト用：あえて例外を発生させて 500 エラーにする
-    raise Exception("Intentional Bug for Rollback Test")
-async def get_telemetry() -> Dict[str, Any]:
     return {
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "ambient_temp_c": 34.0,
