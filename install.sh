@@ -55,5 +55,5 @@ else
 fi
 
 echo "=================================================================="
-echo "🎉 Node Online! Open Antigravity Virtue IDE at: http://localhost:5001"
+echo "🎉 Node Online! Open Antigravity Virtue IDE at: http://localhost:5050"
 echo "=================================================================="
